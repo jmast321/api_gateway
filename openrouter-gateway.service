@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes AI Gateway (OpenRouter Free Router)
+After=network.target
+
+[Service]
+Type=simple
+User=hermes
+WorkingDirectory=/opt/hermes-gateway
+EnvironmentFile=/opt/hermes-gateway/.env
+ExecStart=/opt/hermes-gateway/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

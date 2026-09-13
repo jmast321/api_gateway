@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes AI Gateway — OpenRouter Free Router</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Top Navbar -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-info">
+                    <h1>Hermes AI Gateway</h1>
+                    <p class="subtitle">OpenRouter Free Tier Intelligent Proxy</p>
+                </div>
+            </div>
+            
+            <div class="navbar-actions">
+                <div class="status-pill online">
+                    <span class="pulse-dot"></span>
+                    <span id="gateway-status">Gateway Online</span>
+                </div>
+
+                <div class="mode-selector-wrap">
+                    <label for="mode-select">Mode:</label>
+                    <select id="mode-select" class="mode-select">
+                        <option value="SYNERGY">⚡ SYNERGY (Hybrid)</option>
+                        <option value="HEURISTIC_ONLY">🚀 HEURISTIC (0ms)</option>
+                        <option value="SHADOW_TEST">🔬 SHADOW TEST</option>
+                    </select>
+                </div>
+
+                <button id="btn-refresh-models" class="btn btn-secondary">
+                    <span class="icon">🔄</span> Refresh Models
+                </button>
+            </div>
+        </header>
+
+        <!-- Metrics Overview Cards -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-label">Active Free Models</span>
+                    <span class="metric-icon">🤖</span>
+                </div>
+                <div class="metric-val" id="stat-free-models">--</div>
+                <div class="metric-desc">Available at $0.00 cost</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-label">Total Requests</span>
+                    <span class="metric-icon">📊</span>
+                </div>
+                <div class="metric-val" id="stat-total-requests">0</div>
+                <div class="metric-desc">Routed via Hermes Gateway</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-label">Average Latency</span>
+                    <span class="metric-icon">⚡</span>
+                </div>
+                <div class="metric-val" id="stat-avg-latency">0 ms</div>
+                <div class="metric-desc">Client round-trip duration</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-label">Resilient Fallbacks</span>
+                    <span class="metric-icon">🛡️</span>
+                </div>
+                <div class="metric-val" id="stat-fallbacks">0</div>
+                <div class="metric-desc">429 recoveries & failovers</div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Split -->
+        <div class="main-split">
+            <!-- Left Column: Interactive Playground & Free Models Explorer -->
+            <div class="column left-col">
+                <!-- Interactive Routing Playground -->
+                <div class="panel glassmorphism">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">🧪</span>
+                            <h3>Simulated Routing Playground</h3>
+                        </div>
+                        <span class="badge badge-accent">Live Engine</span>
+                    </div>
+
+                    <p class="panel-subtitle">Test how the dual heuristic + LLM engine routes your prompt without calling external completion.</p>
+
+                    <div class="playground-form">
+                        <div class="form-group">
+                            <label for="play-prompt">Test Prompt / Task:</label>
+                            <textarea id="play-prompt" rows="3" placeholder="e.g. Write a python script to parse CSV files and compute standard deviation..."></textarea>
+                        </div>
+
+                        <div class="playground-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="play-image">
+                                <span>Simulate Image Attachment (Vision)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="play-tools">
+                                <span>Simulate Tool Calling (Functions)</span>
+                            </label>
+                        </div>
+
+                        <div class="playground-actions">
+                            <button id="btn-test-route" class="btn btn-primary">
+                                <span>⚡ Test Decision</span>
+                            </button>
+                            <div class="preset-buttons">
+                                <button class="btn-chip" data-prompt="def quicksort(arr): # Optimize this python function">Code Example</button>
+                                <button class="btn-chip" data-prompt="Analyze this diagram and explain the system architecture" data-img="true">Vision Example</button>
+                                <button class="btn-chip" data-prompt="Prove mathematically that the square root of 2 is irrational step by step">Reasoning Example</button>
+                            </div>
+                        </div>
+
+                        <!-- Routing Decision Result Box -->
+                        <div id="playground-result" class="playground-result hidden">
+                            <div class="result-header">
+                                <span class="result-label">Routing Decision:</span>
+                                <span class="badge badge-success" id="res-primary-model">--</span>
+                            </div>
+                            <div class="result-body">
+                                <div class="result-row">
+                                    <span class="row-title">Identified Tags:</span>
+                                    <div class="tag-list" id="res-tags"></div>
+                                </div>
+                                <div class="result-row">
+                                    <span class="row-title">Estimated Tokens:</span>
+                                    <span id="res-tokens">--</span>
+                                </div>
+                                <div class="result-row">
+                                    <span class="row-title">Fallback Chain:</span>
+                                    <div class="tag-list fallback-tags" id="res-fallbacks"></div>
+                                </div>
+                                <div class="result-row">
+                                    <span class="row-title">Rationale:</span>
+                                    <span class="code-font" id="res-rationale">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discovered Free Tier Models -->
+                <div class="panel glassmorphism">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">🌐</span>
+                            <h3>Discovered Free Tier Models</h3>
+                        </div>
+                        <span class="counter-badge" id="models-count-badge">0 Active</span>
+                    </div>
+
+                    <div class="models-filter-bar">
+                        <input type="text" id="filter-models" placeholder="Filter models by name, provider or tag...">
+                    </div>
+
+                    <div class="models-list" id="models-container">
+                        <div class="loading-spinner">Loading models registry...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Telemetry Stream -->
+            <div class="column right-col">
+                <div class="panel glassmorphism h-full">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">📡</span>
+                            <h3>Live Telemetry & Logs</h3>
+                        </div>
+                        <button id="btn-refresh-logs" class="btn-icon" title="Refresh Logs">↻</button>
+                    </div>
+                    <p class="panel-subtitle">Real-time trace of API requests routed through this gateway.</p>
+
+                    <div class="telemetry-feed" id="telemetry-feed">
+                        <div class="empty-state">
+                            <span class="empty-icon">⏳</span>
+                            <p>No requests recorded yet.</p>
+                            <small>Point your Hermes agent or OpenAI SDK to <code>http://localhost:8000/v1</code> to start seeing live telemetry!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Quick Guide Footer -->
+        <footer class="connection-guide glassmorphism">
+            <h4>Hermes Agent Integration Quick Reference</h4>
+            <div class="guide-cards">
+                <div class="guide-code-box">
+                    <span class="guide-lang">Environment Variable</span>
+                    <code>OPENAI_BASE_URL="http://localhost:8000/v1"</code>
+                </div>
+                <div class="guide-code-box">
+                    <span class="guide-lang">Python (OpenAI Client)</span>
+                    <code>client = OpenAI(base_url="http://localhost:8000/v1", api_key="not-needed")</code>
+                </div>
+                <div class="guide-code-box">
+                    <span class="guide-lang">cURL Test</span>
+                    <code>curl http://localhost:8000/v1/models</code>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
